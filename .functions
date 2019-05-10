@@ -1,0 +1,34 @@
+#!/bin/bash
+# docker development
+clean-images() {
+docker images --no-trunc | grep '<none>' | awk '{ print $3 }' | xargs docker rmi
+}
+
+clean-containers() {
+"docker ps --filter status=dead --filter status=exited -aq|xargs docker rm -v" 
+}
+
+clean-volumes() {
+  "docker volume ls -qf "dangling=true" | xargs docker volume rm"
+}
+
+clean-all() {
+  "docker ps --no-trunc -aqf "status=exited" | xargs docker rm ; \ " 
+  "docker images --no-trunc -aqf "dangling=true" | xargs docker rmi ; \ " 
+  "docker volume ls -qf "dangling=true" | xargs docker volume rms " 
+} 
+
+commit() {
+	printf "Please enter commit message "
+	read message
+	git add .
+	git commit -m "$message"
+	git push
+}
+
+# # android development
+# function adball()
+# {
+#     adb devices | egrep '\t(device|emulator)' | cut -f 1 | xargs -t -J% -n1 -P5 \
+#           adb -s % "$@"
+# }
